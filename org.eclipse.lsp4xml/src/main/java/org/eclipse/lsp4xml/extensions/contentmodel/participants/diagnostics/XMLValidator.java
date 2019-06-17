@@ -60,12 +60,15 @@ public class XMLValidator {
 
 	public static void doDiagnostics(DOMDocument document, XMLEntityResolver entityResolver,
 			List<Diagnostic> diagnostics, ContentModelSettings contentModelSettings, XMLGrammarPool grammarPool,
-			CancelChecker monitor) {
+			ContentModelSettings settings, CancelChecker monitor) {
 		try {
+			
+			// Configure the XSD schema version
+			String namespaceSchemaVersion = XMLValidationSettings.getNamespaceSchemaVersion(settings);
 			XMLValidationSettings validationSettings = contentModelSettings != null
 					? contentModelSettings.getValidation()
 					: null;
-			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(grammarPool,
+			LSPXMLParserConfiguration configuration = new LSPXMLParserConfiguration(namespaceSchemaVersion, grammarPool,
 					isDisableOnlyDTDValidation(document), validationSettings);
 
 			if (entityResolver != null) {
@@ -74,6 +77,7 @@ public class XMLValidator {
 
 			final LSPErrorReporterForXML reporter = new LSPErrorReporterForXML(document, diagnostics);
 			boolean externalDTDValid = checkExternalDTD(document, reporter, configuration);
+
 			SAXParser parser = new SAXParser(configuration);
 			// Add LSP error reporter to fill LSP diagnostics from Xerces errors
 			parser.setProperty("http://apache.org/xml/properties/internal/error-reporter", reporter);
@@ -94,7 +98,7 @@ public class XMLValidator {
 				parser.setFeature("http://apache.org/xml/features/validation/schema", hasGrammar); //$NON-NLS-1$
 
 				// warn if XML document is not bound to a grammar according the settings
-				warnNoGrammar(document, diagnostics, contentModelSettings);
+				warnNoGrammar(document, diagnostics, settings);
 			} else {
 				hasGrammar = false; // validation for Schema was disabled
 			}
