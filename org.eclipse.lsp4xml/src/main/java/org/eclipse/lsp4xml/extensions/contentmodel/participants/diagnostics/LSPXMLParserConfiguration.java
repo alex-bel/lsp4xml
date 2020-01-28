@@ -9,7 +9,9 @@
 *******************************************************************************/
 package org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics;
 
+import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.dtd.XMLDTDValidator;
+import org.apache.xerces.impl.xs.XMLSchemaValidator;
 import org.apache.xerces.parsers.XIncludeAwareParserConfiguration;
 import org.apache.xerces.xni.XNIException;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
@@ -31,11 +33,20 @@ import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLValidationSetting
  */
 class LSPXMLParserConfiguration extends XIncludeAwareParserConfiguration {
 
+	private static final String XML_SCHEMA_VERSION = Constants.XERCES_PROPERTY_PREFIX
+			+ Constants.XML_SCHEMA_VERSION_PROPERTY;
+
+	private static final String SCHEMA_VALIDATOR = Constants.XERCES_PROPERTY_PREFIX
+			+ Constants.SCHEMA_VALIDATOR_PROPERTY;
+
+	private final String namespaceSchemaVersion;
+
 	private final boolean disableDTDValidation;
 
-	public LSPXMLParserConfiguration(XMLGrammarPool grammarPool, boolean disableDTDValidation,
+	public LSPXMLParserConfiguration(String namespaceSchemaVersion, XMLGrammarPool grammarPool, boolean disableDTDValidation,
 			XMLValidationSettings validationSettings) {
 		super(null, grammarPool);
+		this.namespaceSchemaVersion = namespaceSchemaVersion;
 		this.disableDTDValidation = disableDTDValidation;
 		// Disable DOCTYPE declaration if settings is set to true.
 		boolean disallowDocTypeDecl = validationSettings != null ? validationSettings.isDisallowDocTypeDecl() : false;
@@ -45,6 +56,27 @@ class LSPXMLParserConfiguration extends XIncludeAwareParserConfiguration {
 				: false;
 		super.setFeature("http://xml.org/sax/features/external-general-entities", resolveExternalEntities);
 		super.setFeature("http://xml.org/sax/features/external-parameter-entities", resolveExternalEntities);
+	}
+
+	@Override
+	protected void configurePipeline() {
+		super.configurePipeline();
+		configureSchemaVersion();
+	}
+
+	@Override
+	protected void configureXML11Pipeline() {
+		super.configureXML11Pipeline();
+		configureSchemaVersion();
+	}
+
+	private void configureSchemaVersion() {
+		if (namespaceSchemaVersion != null) {
+			XMLSchemaValidator validator = (XMLSchemaValidator) super.getProperty(SCHEMA_VALIDATOR);
+			if (validator != null) {
+				validator.setProperty(XML_SCHEMA_VERSION, namespaceSchemaVersion);
+			}
+		}
 	}
 
 	@Override

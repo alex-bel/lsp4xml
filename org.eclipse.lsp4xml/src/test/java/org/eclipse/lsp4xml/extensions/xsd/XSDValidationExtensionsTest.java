@@ -335,7 +335,7 @@ public class XSDValidationExtensionsTest {
 		testDiagnosticsFor(xml, d);
 		testCodeActionsFor(xml, d, ca(d, te(2, 8, 2, 8, " namespace=\"\"")), ca(d, te(1, 48, 1, 48, " targetNamespace=\"\"")));
 	}
-
+	
 	@Test
 	public void src_import_1_2_different_range() throws BadLocationException {
 		String xml = "<?xml version=\'1.0\'?>\r\n" +

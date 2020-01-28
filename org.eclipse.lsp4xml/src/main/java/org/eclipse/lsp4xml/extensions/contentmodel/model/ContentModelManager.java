@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.eclipse.lsp4xml.dom.DOMDocument;
 import org.eclipse.lsp4xml.dom.DOMElement;
+import org.eclipse.lsp4xml.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lsp4xml.extensions.contentmodel.participants.diagnostics.LSPXMLGrammarPool;
 import org.eclipse.lsp4xml.extensions.contentmodel.settings.XMLFileAssociation;
 import org.eclipse.lsp4xml.extensions.contentmodel.uriresolver.XMLCacheResolverExtension;
@@ -46,6 +47,8 @@ public class ContentModelManager {
 	private final XMLFileAssociationResolverExtension fileAssociationResolver;
 	private final XMLGrammarPool grammarPool;
 
+	private ContentModelSettings settings;
+
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;
 		modelProviders = new ArrayList<>();
@@ -59,6 +62,14 @@ public class ContentModelManager {
 		grammarPool = new LSPXMLGrammarPool();
 		// Use cache by default
 		setUseCache(true);
+	}
+
+	public void setSettings(ContentModelSettings settings) {
+		this.settings = settings;
+	}
+
+	public ContentModelSettings getSettings() {
+		return settings;
 	}
 
 	public CMElementDeclaration findCMElement(DOMElement element) throws Exception {
@@ -92,8 +103,8 @@ public class ContentModelManager {
 	 * Returns true if the given document is linked to the given grammar URI (XML
 	 * Schema, DTD) and false otherwise.
 	 * 
-	 * @param document   the DOM document
-	 * @param grammarURI the grammar URI
+	 * @param document the DOM document
+	 * @param grammarURI  the grammar URI
 	 * @return true if the given document is linked to the given grammar URI (XML
 	 *         Schema, DTD) and false otherwise.
 	 */
@@ -144,26 +155,26 @@ public class ContentModelManager {
 		if (!isFileResource && cacheResolverExtension.isUseCache()) {
 			// The DTD/XML Schema comes from http://, ftp:// etc and cache manager is
 			// activated
-			// Try to load the DTD/XML Schema with the cache manager
-			try {
+				// Try to load the DTD/XML Schema with the cache manager
+				try {
 				Path file = cacheResolverExtension.getCachedResource(resolvedUri);
-				if (file != null) {
-					cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
-				}
-			} catch (CacheResourceDownloadingException e) {
-				// the DTD/XML Schema is downloading
-				return null;
-			} catch (Exception e) {
-				// other error like network which is not available
+					if (file != null) {
+						cmDocument = modelProvider.createCMDocument(file.toFile().getPath());
+					}
+				} catch (CacheResourceDownloadingException e) {
+					// the DTD/XML Schema is downloading
+					return null;
+				} catch (Exception e) {
+					// other error like network which is not available
 				cmDocument = modelProvider.createCMDocument(resolvedUri);
-			}
-		} else {
+				}
+			} else {
 			cmDocument = modelProvider.createCMDocument(resolvedUri);
-		}
+			}
 		// Cache the document
 		if (cmDocument != null) {
 			cache(resolvedUri, cmDocument);
-		}
+			}
 		return cmDocument;
 	}
 
@@ -279,7 +290,7 @@ public class ContentModelManager {
 		cacheResolverExtension.setUseCache(useCache);
 		if (!useCache) {
 			grammarPool.clear();
-		}
+	}
 	}
 
 	public void registerModelProvider(ContentModelProvider modelProvider) {

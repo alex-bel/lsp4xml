@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.lsp4xml</groupId>
@@ -11,6 +13,13 @@
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 	</properties>
+	<repositories>
+		<repository>
+			<id>ab-xerces-repo</id>
+			<name>Xerces repo</name>
+			<url>https://dl.bintray.com/alex-bel/alexbel-repo/</url>
+		</repository>
+	</repositories>
 	<build>
 		<resources>
 			<resource>
@@ -96,11 +105,14 @@
 			<groupId>org.eclipse.lsp4j</groupId>
 			<artifactId>org.eclipse.lsp4j.jsonrpc</artifactId>
 		</dependency>
+
+		<!-- Xerces 1.1 -->
 		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.12.0</version>
+			<groupId>xerces4j-with-deps</groupId>
+			<artifactId>xerces-schema-1_1-icu</artifactId>
+			<version>2.12.1.1</version>
 		</dependency>
+
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
@@ -115,12 +127,6 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.9.2</version>
-		</dependency>
-		<dependency>
-			<groupId>xml-resolver</groupId>
-			<artifactId>xml-resolver</artifactId>
-			<version>1.2</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

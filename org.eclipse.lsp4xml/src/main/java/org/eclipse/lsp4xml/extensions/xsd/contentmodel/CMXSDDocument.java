@@ -27,6 +27,7 @@ import org.apache.xerces.impl.xs.SchemaGrammar;
 import org.apache.xerces.impl.xs.XSComplexTypeDecl;
 import org.apache.xerces.impl.xs.XSElementDecl;
 import org.apache.xerces.impl.xs.XSElementDeclHelper;
+import org.apache.xerces.impl.xs.models.CMBuilder;
 import org.apache.xerces.impl.xs.util.SimpleLocator;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLLocator;
@@ -74,14 +75,16 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
 
+	private final CMBuilder cmBuilder;
+
 	private Collection<CMElementDeclaration> elements;
 
 	private final FilesChangedTracker tracker;
-
-	public CMXSDDocument(XSModel model, String uri) {
+	public CMXSDDocument(XSModel model, String uri, CMBuilder cmBuilder) {
 		this.model = model;
 		this.elementMappings = new HashMap<>();
 		this.uri = uri;
+		this.cmBuilder = cmBuilder;
 		this.tracker = createFilesChangedTracker(model);
 	}
 
@@ -99,7 +102,8 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 			SchemaGrammar grammar = getSchemaGrammar(namespaces.item(i));
 			if (grammar != null) {
 				grammars.add(grammar);
-			}
+		
+	}
 		}
 		return XSDUtils.createFilesChangedTracker(grammars);
 	}
@@ -408,7 +412,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	 * @param targetSchema  the XML Schema
 	 * @param enclosingType the enclosing type of the XS element declaration which
 	 *                      matches the XML element
-	 * @param grammar       the Xerces grammar
+	 * @param schemaGrammar       the Xerces grammar
 	 * @return the location of the global xs:element declared in the given XML
 	 *         Schema <code>targetSchema</code> which matches the given XML element
 	 *         <code>originElement</code> and null otherwise.
@@ -569,5 +573,9 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 	@Override
 	public boolean isDirty() {
 		return tracker.isDirty();
+	}
+	
+	CMBuilder getCMBuilder() {
+		return cmBuilder;
 	}
 }
